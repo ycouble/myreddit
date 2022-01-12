@@ -1,6 +1,7 @@
 # My Reddit: an exploratory NLP project on reddit
 
 ## Feature Ideas
+
 - Dashboard of each subreddit summary (nb posts, topics, nb votes, etc.)
 - Topic modelling
 - Automatic text preprocessing (pipelines)
@@ -10,7 +11,9 @@
 - Tech NER
 
 ## Data organization
+
 ### Data Lake
+
 - Dagster Pipelines:
   - Scrapping
   - API calls
@@ -18,7 +21,9 @@
 - Potential complementary data: list of techs
 
 ### Data Warehouse
+
 #### Ingestion / Preproc
+
 - Dagster Pipelines
   - Parsing & Organization
     - Insert in relational DB
@@ -34,18 +39,19 @@
   - Vector representations of docs
 
 #### Data Mart
+
 - Dagster Pipelines
   - Information Extraction / Aggregation
 - Data Mart n°2: **reddit_insights** (PostgreSQL
 
 ## Code organization
+
 - jobs/ (dagster pipelines)
   - ingest/ (scrapp + API calls) (web --> reddit_raw)
   - preproc/ (cleaning, featurizing, ...) (reddit_raw --> reddit_db (opt. --> reddit_insights))
   - app/ (reddit_db --> reddit_insights)
 
-
-``` flowchart
+```flowchart
 reddit=>start: Reddit website / API
 ing=>operation: Ingestion
 raw=>subroutine: Raw Data (reddit_raw)
@@ -54,7 +60,7 @@ ext=>operation: Extraction
 ins=>subroutine: Insights (reddit_insights)
 pre=>parallel: Preprocessing / Featurization
 
-dash=>end: Dashboards 
+dash=>end: Dashboards
 
 reddit->ing->raw
 raw->pre
@@ -63,3 +69,21 @@ pre(path2, bottom)->db
 db->ext->ins
 ins->dash
 ```
+
+## Service Architecture
+
+- job_runner: AirFlow
+- Data Connection: AirByte
+- (Data Transformations: dbt)
+- database: PostgreSQL
+- API server: exposes http/https: FastAPI
+
+Options:
+
+- 4 dockerfiles, 1 docker compose (easy to redeploy)
+
+- Cloud based (automated creation) --> at what price ?
+
+
+
+#

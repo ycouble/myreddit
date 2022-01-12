@@ -1,0 +1,12 @@
+dagster
+dagster-gcp
+dagit
+pyarrow
+pandas
+numpy
+spacy>3.0.0
+requests
+SQLAlchemy
+psycopg2
+fastapi
+python-dotenv

@@ -1,0 +1,22 @@
+resources:
+  reddit:
+    config:
+        secret: C3rwKVVuL-L8HkJ6fiDD8wvRsqDMyg
+        app_id: 1PZH2AGk7VT9ISAAygpCAw
+        username: Qualkeck
+        password: GrMkAc7Hu&
+        posts_limit: 10
+        comments_limit: 10
+        comments_depth: 10
+  bigquery:
+    config:
+       project: myreddit-338008
+ops:
+  import_posts_to_bq:
+    config:
+      dataset: reddit_raw
+      table: posts
+  import_comments_to_bq:
+    config:
+      dataset: reddit_raw
+      table: comments

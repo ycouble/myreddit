@@ -2,15 +2,18 @@ import datetime
 from typing import Any, Dict, List
 
 import requests
-from dagster import ModeDefinition, job, make_values_resource, op
-from dagster_gcp import bigquery_resource
-from dotenv import load_dotenv
-from google.cloud import bigquery
+from dagster_dbt import dbt_cli_resource, dbt_cli_run_operation
+from jobs.common_ops.bigquery import bigquery_resource, load_data_in_bq
 
-load_dotenv()
+from dagster import InputDefinition, Nothing, job, make_values_resource, op
 
 Records = List[Dict[str, Any]]
 
+
+# Resources
+dbt_resource = dbt_cli_resource.configured(
+    {"project_dir": "/Users/yco/dev/myreddit/dbt/", "profiles_dir": "/Users/yco/.dbt/"}
+)
 
 MY_SUBREDDITS = ["dataengineering", "datasets", "LanguageTechnology"]
 
@@ -109,21 +112,12 @@ def extract_comments(context, post_records: Records) -> Records:
     return comments_data
 
 
-@op(required_resource_keys={"bigquery"}, config_schema={"dataset": str, "table": str})
-def load_data_in_bq(context, records: Records):
-    job_config = bigquery.LoadJobConfig()
-    job_config.autodetect = True
-    job_config.schema_update_options = [
-        "ALLOW_FIELD_ADDITION",
-        "ALLOW_FIELD_RELAXATION",
-    ]
-    job_config.write_disposition = "WRITE_APPEND"
-    # job_config.source_format = "CSV"
-    context.resources.bigquery.load_table_from_json(
-        records,
-        f"{context.op_config['dataset']}.{context.op_config['table']}",
-        job_config=job_config,
-    ).result()
+@op(
+    required_resource_keys={"dbt"},
+    input_defs=[InputDefinition(name="start_after", dagster_type=Nothing)],
+)
+def run_dbt_transformations(context):
+    context.resources.dbt.run(models=["tag:statistics"])
 
 
 @job(
@@ -138,6 +132,7 @@ def load_data_in_bq(context, records: Records):
             comments_depth=int,
         ),
         "bigquery": bigquery_resource,
+        "dbt": dbt_resource,
     }
 )
 def reddit_extract_load():
@@ -146,4 +141,10 @@ def reddit_extract_load():
     comment_records = extract_comments(post_records)
     # import_df_to_bq.alias("import_posts_to_bq")(df_posts)
     load_data_in_bq.alias("import_posts_to_bq")(post_records)
-    load_data_in_bq.alias("import_comments_to_bq")(comment_records)
+    comments_loaded = load_data_in_bq.alias("import_comments_to_bq")(comment_records)
+    run_dbt_transformations(start_after=comments_loaded)
+
+
+@job(resource_defs={"dbt": dbt_resource})
+def run_dbt_statistics():
+    run_dbt_transformations()

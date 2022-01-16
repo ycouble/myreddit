@@ -5,3 +5,4 @@
 logs/
 tmp*/
 .vscode/
+dbt-user-creds.json

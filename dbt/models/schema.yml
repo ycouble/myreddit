@@ -1,0 +1,41 @@
+version: 2
+
+sources:
+  - name: raw
+    dataset: reddit_raw
+    description: The raw data retrieved from reddit
+    tables:
+      - name: posts
+        description: posts / article as shown in the front page of any subreddit
+        columns:
+          - name: id
+            description: primary key
+            tests:
+              - unique
+              - not_null
+      - name: comments
+        description: comments of a posts
+        columns:
+          - name: id
+            description: primary key
+            tests:
+              - unique
+              - not_null
+          - name: parent_id
+            description: foreign key
+            tests:
+              - not_null
+
+models:
+  - name: posts
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+  - name: comments
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null

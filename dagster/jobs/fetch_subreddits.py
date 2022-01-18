@@ -117,7 +117,7 @@ def extract_comments(context, post_records: Records) -> Records:
     input_defs=[InputDefinition(name="start_after", dagster_type=Nothing)],
 )
 def run_dbt_transformations(context):
-    context.resources.dbt.run(models=["tag:statistics"])
+    context.resources.dbt.run(models=["tag:ingestion"])
 
 
 @job(

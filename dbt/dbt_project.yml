@@ -38,4 +38,9 @@ models:
       +project: myreddit-338008
       # The dataset property will be concatenated with the project target {target}_{dataset}
       +dataset: statistics
-      +tags: statistics
+      +tags: ["statistics", "ingestion"]
+    texts:
+      +materialized: table
+      +project: myreddit-338008
+      +dataset: texts
+      +tags: ["texts", "ingestion"]

@@ -8,6 +8,7 @@ pandas
 pandas-gbq
 numpy
 spacy>3.0.0
+textacy
 requests
 SQLAlchemy
 psycopg2

@@ -16,11 +16,19 @@ resources:
       profiles_dir: /Users/yco/.dbt/
       project_dir: /Users/yco/dev/myreddit/dbt/
 ops:
-  import_posts_to_bq:
-    config:
-      dataset: reddit_raw
-      table: posts
-  import_comments_to_bq:
-    config:
-      dataset: reddit_raw
-      table: comments
+  reddit_el:
+    ops:
+      import_posts_to_bq:
+        config:
+          dataset: reddit_raw
+          table: posts
+      import_comments_to_bq:
+        config:
+          dataset: reddit_raw
+          table: comments
+  preprocess_texts:
+    ops:
+      load_clean_texts:
+        config:
+          dataset: reddit_texts
+          table: posts_clean

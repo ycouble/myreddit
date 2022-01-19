@@ -2,10 +2,11 @@ import datetime
 from typing import Any, Dict, List
 
 import requests
-from dagster_dbt import dbt_cli_resource, dbt_cli_run_operation
-from jobs.common_ops.bigquery import bigquery_resource, load_data_in_bq
+from dagster import In, Nothing, Out, Output, graph, job, make_values_resource, op
+from dagster_dbt import dbt_cli_resource
 
-from dagster import InputDefinition, Nothing, job, make_values_resource, op
+import jobs.common.bigquery as bq
+import jobs.common.text_prep as text_prep
 
 Records = List[Dict[str, Any]]
 
@@ -112,12 +113,61 @@ def extract_comments(context, post_records: Records) -> Records:
     return comments_data
 
 
-@op(
-    required_resource_keys={"dbt"},
-    input_defs=[InputDefinition(name="start_after", dagster_type=Nothing)],
-)
+@op(required_resource_keys={"dbt"}, ins={"start_after": In(Nothing)})
 def run_dbt_transformations(context):
     context.resources.dbt.run(models=["tag:ingestion"])
+
+
+@op(
+    required_resource_keys={"bigquery"},
+    ins={"start_after": In(Nothing)},
+    out={"posts": Out(Records)},
+)
+def get_raw_texts(context):
+    if bq.table_exists(
+        context.resources.bigquery, dataset="reddit_texts", table="posts_clean"
+    ):
+        where_clause_posts = "id NOT IN (SELECT id from `reddit_texts.posts_clean`)"
+    else:
+        where_clause_posts = None
+    yield Output(
+        bq.get_table_as_records(
+            context.resources.bigquery,
+            dataset="reddit_texts",
+            table="post_contents",
+            where_clause=where_clause_posts,
+        ),
+        "posts",
+    )
+
+
+@op()
+def posts_text_cleaning(posts: Records) -> Records:
+    return [
+        text_prep.preprocess(post, field="selftext", new_field="text") for post in posts
+    ]
+
+
+@op(required_resource_keys={"bigquery"})
+def drop_clean_tables(context):
+    clean_tables = {"reddit_texts": ["posts_clean"]}
+    for dataset, tables in clean_tables.items():
+        for table in tables:
+            bq.drop_table(context.resources.bigquery, dataset, table)
+
+
+@graph
+def preprocess_texts(start_after):
+    posts = get_raw_texts(start_after)
+    bq.load_data.alias("load_clean_texts")(posts_text_cleaning(posts))
+
+
+@graph
+def reddit_el():
+    post_records = extract_posts()
+    comment_records = extract_comments(post_records)
+    bq.load_data.alias("import_posts_to_bq")(post_records)
+    return bq.load_data.alias("import_comments_to_bq")(comment_records)
 
 
 @job(
@@ -131,20 +181,27 @@ def run_dbt_transformations(context):
             comments_limit=int,
             comments_depth=int,
         ),
-        "bigquery": bigquery_resource,
+        "bigquery": bq.bigquery_resource,
         "dbt": dbt_resource,
     }
 )
-def reddit_extract_load():
-
-    post_records = extract_posts()
-    comment_records = extract_comments(post_records)
-    # import_df_to_bq.alias("import_posts_to_bq")(df_posts)
-    load_data_in_bq.alias("import_posts_to_bq")(post_records)
-    comments_loaded = load_data_in_bq.alias("import_comments_to_bq")(comment_records)
-    run_dbt_transformations(start_after=comments_loaded)
+def reddit_full_pipeline():
+    el_done = reddit_el()
+    dbt_done = run_dbt_transformations(start_after=el_done)
+    preprocess_texts(start_after=dbt_done)
 
 
 @job(resource_defs={"dbt": dbt_resource})
 def run_dbt_statistics():
     run_dbt_transformations()
+
+
+@job(resource_defs={"bigquery": bq.bigquery_resource})
+def run_text_prep():
+    preprocess_texts()
+
+
+@job(resource_defs={"bigquery": bq.bigquery_resource})
+def run_text_prep_from_scratch():
+    drop_done = drop_clean_tables()
+    preprocess_texts(start_after=drop_done)

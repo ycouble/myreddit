@@ -1,8 +1,10 @@
-from jobs.fetch_subreddits import reddit_extract_load, run_dbt_statistics
-
 from dagster import ScheduleDefinition, repository
 
-fetch_schedule = ScheduleDefinition(job=reddit_extract_load, cron_schedule="0 12 * * *")
+import jobs.reddit_elt as elt
+
+fetch_schedule = ScheduleDefinition(
+    job=elt.reddit_full_pipeline, cron_schedule="0 12 * * *"
+)
 
 # @sensor(job=job2)
 # def job2_sensor():
@@ -15,6 +17,8 @@ fetch_schedule = ScheduleDefinition(job=reddit_extract_load, cron_schedule="0 12
 def my_repository():
     return [
         fetch_schedule,
-        run_dbt_statistics,
+        elt.run_dbt_statistics,
+        elt.run_text_prep,
+        elt.run_text_prep_from_scratch,
         # job2_sensor,
     ]

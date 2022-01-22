@@ -1,15 +1,23 @@
 import datetime
-from typing import Any, Dict, List
 
 import requests
-from dagster import In, Nothing, Out, Output, graph, job, make_values_resource, op
+from dagster import (
+    GraphOut,
+    In,
+    Nothing,
+    Out,
+    Output,
+    graph,
+    job,
+    make_values_resource,
+    op,
+)
 from dagster_dbt import dbt_cli_resource
 
 import jobs.common.bigquery as bq
 import jobs.common.text_prep as text_prep
-
-Records = List[Dict[str, Any]]
-
+from jobs.common.types import Records
+from jobs.subreddit_prediction import train_subreddit_graph
 
 # Resources
 dbt_resource = dbt_cli_resource.configured(
@@ -156,10 +164,10 @@ def drop_clean_tables(context):
             bq.drop_table(context.resources.bigquery, dataset, table)
 
 
-@graph
+@graph(out=GraphOut())
 def preprocess_texts(start_after):
     posts = get_raw_texts(start_after)
-    bq.load_data.alias("load_clean_texts")(posts_text_cleaning(posts))
+    return bq.load_data.alias("load_clean_texts")(posts_text_cleaning(posts))
 
 
 @graph
@@ -188,7 +196,8 @@ def reddit_el():
 def reddit_full_pipeline():
     el_done = reddit_el()
     dbt_done = run_dbt_transformations(start_after=el_done)
-    preprocess_texts(start_after=dbt_done)
+    prep_done = preprocess_texts(start_after=dbt_done)
+    train_subreddit_graph(start_after=prep_done)
 
 
 @job(resource_defs={"dbt": dbt_resource})

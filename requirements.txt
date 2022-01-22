@@ -14,3 +14,4 @@ SQLAlchemy
 psycopg2
 fastapi
 python-dotenv
+sklearn

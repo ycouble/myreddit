@@ -1,6 +1,7 @@
 from dagster import ScheduleDefinition, repository
 
 import jobs.reddit_elt as elt
+import jobs.subreddit_prediction as spred
 
 fetch_schedule = ScheduleDefinition(
     job=elt.reddit_full_pipeline, cron_schedule="0 12 * * *"
@@ -17,8 +18,9 @@ fetch_schedule = ScheduleDefinition(
 def my_repository():
     return [
         fetch_schedule,
+        spred.train_subreddit,
+        spred.predict_subreddit,
         elt.run_dbt_statistics,
         elt.run_text_prep,
         elt.run_text_prep_from_scratch,
-        # job2_sensor,
     ]

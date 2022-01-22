@@ -1,10 +1,10 @@
 from typing import Any, Dict, List, Optional
 
-from dagster import op
+from dagster import Field, op
 from dagster_gcp import bigquery_resource  # noqa
 from google.cloud import bigquery
 
-Records = List[Dict[str, Any]]
+from jobs.common.types import Records
 
 
 def table_exists(bq_client: bigquery.Client, dataset: str, table: str):
@@ -28,7 +28,14 @@ def get_table_as_records(
     return [dict(row) for row in query_job]
 
 
-@op(required_resource_keys={"bigquery"}, config_schema={"dataset": str, "table": str})
+@op(
+    required_resource_keys={"bigquery"},
+    config_schema={
+        "dataset": str,
+        "table": str,
+        "drop_if_exist": Field(bool, default_value=False),
+    },
+)
 def load_data(context, records: Records):
     job_config = bigquery.LoadJobConfig()
     job_config.autodetect = True
@@ -37,8 +44,9 @@ def load_data(context, records: Records):
         "ALLOW_FIELD_RELAXATION",
     ]
     job_config.write_disposition = "WRITE_APPEND"
+    table = f"{context.op_config['dataset']}.{context.op_config['table']}"
+    if context.op_config["drop_if_exist"]:
+        context.resources.bigquery.delete_table(table)
     context.resources.bigquery.load_table_from_json(
-        records,
-        f"{context.op_config['dataset']}.{context.op_config['table']}",
-        job_config=job_config,
+        records, table, job_config=job_config
     ).result()

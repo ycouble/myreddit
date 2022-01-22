@@ -1,6 +1,7 @@
 dagster
 dagster-gcp
 dagster-dbt==0.13.13
+dagstermill==0.13.13
 dagit
 dbt-bigquery
 pyarrow
@@ -15,3 +16,7 @@ psycopg2
 fastapi
 python-dotenv
 sklearn
+panel
+holoviews
+pyviz_comms
+jupyter-bokeh

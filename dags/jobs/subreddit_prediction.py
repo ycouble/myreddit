@@ -2,6 +2,7 @@ import datetime
 from pathlib import Path
 from typing import List, Set, Tuple, Union
 
+import dagstermill as dm
 import spacy
 from dagster import GraphIn, GraphOut, In, Nothing, Out, Output, graph, job, op
 from sklearn.model_selection import train_test_split
@@ -142,19 +143,18 @@ def compute_model_perf(
     valid_data: Dataset,
     cats: Set[str],
 ) -> Records:
-    train_scores = stringify_nested(
-        prefix_dict(score_text_cat(model_trained, train_data, cats), "train")
-    )
-    valid_scores = stringify_nested(
-        prefix_dict(score_text_cat(model_trained, valid_data, cats), "valid")
-    )
+    scores = {
+        "train": stringify_nested(score_text_cat(model_trained, train_data, cats)),
+        "valid": stringify_nested(score_text_cat(model_trained, valid_data, cats)),
+    }
     return [
         {
             "date": datetime.date.today().strftime("%Y-%m-%d"),
             "model": "default_textcat",
-            **train_scores,
-            **valid_scores,
+            "type": name,
+            **scores,
         }
+        for name, score in scores.items()
     ]
 
 
@@ -167,6 +167,14 @@ def batch_predict_op(context, train_data: Dataset, valid_data: Dataset) -> Recor
     ]
 
 
+k_means_iris = dm.define_dagstermill_op(
+    "plot_model_perfs",
+    ROOT_DIR / "notebooks" / "prod" / "model_perfs.ipynb",
+    output_notebook_name="model_perfs_out",
+)
+
+
+@job(resource_defs={"output_notebook_io_manager": dm.local_output_notebook_io_manager})
 @graph(ins={"start_after": GraphIn()}, out=GraphOut())
 def train_subreddit_graph(start_after):
     train_data, valid_data, cats = get_dataset(start_after)
@@ -178,7 +186,10 @@ def train_subreddit_graph(start_after):
 
 
 train_subreddit = train_subreddit_graph.to_job(
-    resource_defs={"bigquery": bq.bigquery_resource}
+    resource_defs={
+        "bigquery": bq.bigquery_resource,
+        "output_notebook_io_manager": dm.local_output_notebook_io_manager,
+    }
 )
 
 

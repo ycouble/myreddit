@@ -1,5 +1,6 @@
 import datetime
 
+import dagstermill as dm
 import requests
 from dagster import (
     GraphOut,
@@ -191,6 +192,7 @@ def reddit_el():
         ),
         "bigquery": bq.bigquery_resource,
         "dbt": dbt_resource,
+        "output_notebook_io_manager": dm.local_output_notebook_io_manager,
     }
 )
 def reddit_full_pipeline():

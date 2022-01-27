@@ -24,8 +24,15 @@ def prefix_dict(d: dict, prefix: str):
     return {f"{prefix}_{k}": v for k, v in d.items()}
 
 
-def stringify_nested(d):
-    return {k: str(v) if isinstance(v, dict) else v for k, v in d.items()}
+def sanitize(d):
+    return {
+        k: str(v)
+        if isinstance(v, dict)
+        else v.strftime("%Y-%m-%d")
+        if k == "date"
+        else v
+        for k, v in d.items()
+    }
 
 
 def get_latest_model(model_name: str) -> Path:
@@ -144,15 +151,15 @@ def compute_model_perf(
     cats: Set[str],
 ) -> Records:
     scores = {
-        "train": stringify_nested(score_text_cat(model_trained, train_data, cats)),
-        "valid": stringify_nested(score_text_cat(model_trained, valid_data, cats)),
+        "train": sanitize(score_text_cat(model_trained, train_data, cats)),
+        "valid": sanitize(score_text_cat(model_trained, valid_data, cats)),
     }
     return [
         {
             "date": datetime.date.today().strftime("%Y-%m-%d"),
             "model": "default_textcat",
             "type": name,
-            **scores,
+            **score,
         }
         for name, score in scores.items()
     ]
@@ -167,14 +174,18 @@ def batch_predict_op(context, train_data: Dataset, valid_data: Dataset) -> Recor
     ]
 
 
-k_means_iris = dm.define_dagstermill_op(
+run_perf_notebook = dm.define_dagstermill_op(
     "plot_model_perfs",
-    ROOT_DIR / "notebooks" / "prod" / "model_perfs.ipynb",
+    str(ROOT_DIR / "notebooks" / "prod" / "model_perfs.ipynb"),
     output_notebook_name="model_perfs_out",
 )
 
 
 @job(resource_defs={"output_notebook_io_manager": dm.local_output_notebook_io_manager})
+def run_model_perfs_nb():
+    run_perf_notebook()
+
+
 @graph(ins={"start_after": GraphIn()}, out=GraphOut())
 def train_subreddit_graph(start_after):
     train_data, valid_data, cats = get_dataset(start_after)

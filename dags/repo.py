@@ -20,6 +20,7 @@ def my_repository():
         fetch_schedule,
         spred.train_subreddit,
         spred.predict_subreddit,
+        spred.run_model_perfs_nb,
         elt.run_dbt_statistics,
         elt.run_text_prep,
         elt.run_text_prep_from_scratch,

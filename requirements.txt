@@ -9,6 +9,7 @@ pandas
 pandas-gbq
 numpy
 spacy>3.0.0
+spacy-streamlit
 textacy
 requests
 SQLAlchemy

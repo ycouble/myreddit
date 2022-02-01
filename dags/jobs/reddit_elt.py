@@ -25,7 +25,14 @@ dbt_resource = dbt_cli_resource.configured(
     {"project_dir": "/Users/yco/dev/myreddit/dbt/", "profiles_dir": "/Users/yco/.dbt/"}
 )
 
-MY_SUBREDDITS = ["dataengineering", "datasets", "LanguageTechnology"]
+MY_SUBREDDITS = [
+    "dataengineering",
+    "datasets",
+    "LanguageTechnology",
+    "deeplearning",
+    "datascience",
+    "statistics",
+]
 
 
 def filter_nested(data):

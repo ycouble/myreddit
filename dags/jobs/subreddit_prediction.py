@@ -15,6 +15,7 @@ import jobs.common.bigquery as bq
 from jobs.common.types import Records
 from jobs.definitions import ROOT_DIR
 
+SELECTED_MODEL = "textcat_ens"
 nlp = spacy.load("en_core_web_md")
 
 Dataset = List[Tuple[str, Tuple[str, str]]]
@@ -35,9 +36,12 @@ def sanitize(d):
     }
 
 
-def get_latest_model(model_name: str) -> Path:
-    model_folder = ROOT_DIR / "models" / model_name
-    for level in ["year", "month", "day"]:
+def get_latest_model(config: Path) -> Path:
+    model_type = config.parent.name
+    config_name = config.stem
+
+    model_folder = ROOT_DIR / "models" / model_type / config_name
+    for _ in ["year", "month", "day"]:
         model_folder = model_folder / max(
             x.name for x in model_folder.iterdir() if x.is_dir()
         )
@@ -69,7 +73,11 @@ def score_text_cat(model_path: Path, data: Dataset, cats: Set[str]):
     return scores
 
 
-def batch_predict(model_path: Path, data: Dataset, is_train: bool) -> Records:
+def batch_predict(
+    config: Path, model_path: Path, data: Dataset, is_train: bool
+) -> Records:
+    model = config.stem
+    model_type = config.parent.name
     nlp_textcat = spacy.load(str(model_path / "model-best"))
     predictions = []
     for doc, (_id, label) in nlp_textcat.pipe(data, as_tuples=True):
@@ -82,6 +90,8 @@ def batch_predict(model_path: Path, data: Dataset, is_train: bool) -> Records:
                 "correct": label == predicted_cat,
                 "confidence": doc.cats[predicted_cat],
                 "is_train": is_train,
+                "model": model,
+                "model_type": model_type,
             }
         )
     return predictions
@@ -121,25 +131,35 @@ def get_dataset(context):
     yield Output(cats, "cats")
 
 
-@op
-def train_model(
-    context, train_data: Dataset, valid_data: Dataset, cats: Set[str]
-) -> Path:
-    make_docs(train_data, ROOT_DIR / "tmp/train.spacy", cats)
-    make_docs(valid_data, ROOT_DIR / "tmp/valid.spacy", cats)
-    output_path = (
-        ROOT_DIR
-        / f"models/default_textcat/{datetime.date.today().strftime('%Y/%m/%d')}"
+def op_factory_train_model(config: Path):
+    model_type = config.parent.name
+    config_name = config.stem
+    config_path = str(config)
+
+    @op(
+        name=f"train_model_{config.stem}",
     )
-    spacy_train(
-        ROOT_DIR / "spacy_configs/subreddit_classif/default_textcat.cfg",
-        output_path=output_path,
-        overrides={
-            "paths.train": str(ROOT_DIR / "tmp/train.spacy"),
-            "paths.dev": str(ROOT_DIR / "tmp/valid.spacy"),
-        },
-    )
-    return output_path
+    def train_model(
+        context, train_data: Dataset, valid_data: Dataset, cats: Set[str]
+    ) -> Path:
+        make_docs(train_data, ROOT_DIR / "tmp/train.spacy", cats)
+        make_docs(valid_data, ROOT_DIR / "tmp/valid.spacy", cats)
+        model_path = (
+            ROOT_DIR
+            / f"models/{model_type}/{config_name}"
+            / f"{datetime.date.today().strftime('%Y/%m/%d')}"
+        )
+        spacy_train(
+            config_path,
+            output_path=model_path,
+            overrides={
+                "paths.train": str(ROOT_DIR / "tmp/train.spacy"),
+                "paths.dev": str(ROOT_DIR / "tmp/valid.spacy"),
+            },
+        )
+        return model_path
+
+    return train_model
 
 
 @op
@@ -150,6 +170,9 @@ def compute_model_perf(
     valid_data: Dataset,
     cats: Set[str],
 ) -> Records:
+    model_dir_path = model_trained.parent.parent.parent
+    model_name = model_dir_path.stem
+    model_type = model_dir_path.parent.stem
     scores = {
         "train": sanitize(score_text_cat(model_trained, train_data, cats)),
         "valid": sanitize(score_text_cat(model_trained, valid_data, cats)),
@@ -157,7 +180,8 @@ def compute_model_perf(
     return [
         {
             "date": datetime.date.today().strftime("%Y-%m-%d"),
-            "model": "default_textcat",
+            "model_type": model_type,
+            "model": model_name,
             "type": name,
             **score,
         }
@@ -165,13 +189,16 @@ def compute_model_perf(
     ]
 
 
-@op(ins={"start_after": In(Nothing)})
-def batch_predict_op(context, train_data: Dataset, valid_data: Dataset) -> Records:
-    model_path = get_latest_model("default_textcat")
-    return [
-        *batch_predict(model_path, train_data, is_train=True),
-        *batch_predict(model_path, train_data, is_train=False),
-    ]
+def op_factory_batch_predict(config: Path):
+    @op(name=f"batch_predict_{config.stem}", ins={"start_after": In(Nothing)})
+    def batch_predict_op(context, train_data: Dataset, valid_data: Dataset) -> Records:
+        model_path = get_latest_model(config)
+        return [
+            *batch_predict(config, model_path, train_data, is_train=True),
+            *batch_predict(config, model_path, valid_data, is_train=False),
+        ]
+
+    return batch_predict_op
 
 
 run_perf_notebook = dm.define_dagstermill_op(
@@ -181,31 +208,64 @@ run_perf_notebook = dm.define_dagstermill_op(
 )
 
 
-@job(resource_defs={"output_notebook_io_manager": dm.local_output_notebook_io_manager})
-def run_model_perfs_nb():
-    run_perf_notebook()
+def graph_factory_batch_predict(config: Path):
+    @graph(
+        name=f"batch_predict_graph_{config.stem}",
+        ins={
+            "train_data": GraphIn(),
+            "valid_data": GraphIn(),
+            "start_after": GraphIn(),
+        },
+        out=GraphOut(),
+    )
+    def batch_predict_graph(train_data: Dataset, valid_data: Dataset, start_after):
+        batch_predict_op = op_factory_batch_predict(config)
+        predictions = batch_predict_op(train_data, valid_data, start_after=start_after)
+        return bq.load_data.alias("load_predictions")(predictions)
+
+    return batch_predict_graph
+
+
+batch_predict_graph = graph_factory_batch_predict(
+    ROOT_DIR / "spacy_configs" / "subreddit_classif" / f"{SELECTED_MODEL}.cfg"
+)
 
 
 @graph(ins={"start_after": GraphIn()}, out=GraphOut())
 def train_subreddit_graph(start_after):
+    model_type = "subreddit_classif"
+    config_folder_path = ROOT_DIR / "spacy_configs" / model_type
+
     train_data, valid_data, cats = get_dataset(start_after)
-    model_trained = train_model(train_data, valid_data, cats)
-    scores = compute_model_perf(model_trained, train_data, valid_data, cats)
-    bq.load_data.alias("load_model_perfs")(scores)
-    predictions = batch_predict_op(train_data, valid_data, start_after=model_trained)
-    return bq.load_data.alias("load_predictions")(predictions)
+    loaded = {}
+    for config in config_folder_path.glob("*.cfg"):
+        train_model = op_factory_train_model(config)
+        model_trained = train_model(train_data, valid_data, cats)
+        scores = compute_model_perf(model_trained, train_data, valid_data, cats)
+        loaded[config.stem] = bq.load_data.alias(f"load_model_perfs_{config.stem}")(
+            scores
+        )
+
+    return batch_predict_graph(
+        train_data, valid_data, start_after=loaded[SELECTED_MODEL]
+    )
 
 
 train_subreddit = train_subreddit_graph.to_job(
+    name="train_subreddit",
     resource_defs={
         "bigquery": bq.bigquery_resource,
         "output_notebook_io_manager": dm.local_output_notebook_io_manager,
-    }
+    },
 )
 
 
 @job(resource_defs={"bigquery": bq.bigquery_resource})
 def predict_subreddit():
     train_data, valid_data, _ = get_dataset()
-    predictions = batch_predict_op(train_data, valid_data)
-    bq.load_data.alias("load_predictions")(predictions)
+    batch_predict_graph(train_data, valid_data)
+
+
+@job(resource_defs={"output_notebook_io_manager": dm.local_output_notebook_io_manager})
+def run_model_perfs_nb():
+    run_perf_notebook()

@@ -21,3 +21,4 @@ panel
 holoviews
 pyviz_comms
 jupyter-bokeh
+fire

@@ -22,3 +22,5 @@ holoviews
 pyviz_comms
 jupyter-bokeh
 fire
+bertopic[visualization]
+sentence-transformers

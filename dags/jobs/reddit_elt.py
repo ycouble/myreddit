@@ -18,12 +18,31 @@ from dagster_dbt import dbt_cli_resource
 import jobs.common.bigquery as bq
 import jobs.common.text_prep as text_prep
 from jobs.common.types import Records
-from jobs.subreddit_prediction import train_subreddit_graph
+from jobs.subreddit_prediction import (
+    batch_predict_graph,
+    get_dataset,
+    train_subreddit_graph,
+)
 
 # Resources
 dbt_resource = dbt_cli_resource.configured(
     {"project_dir": "/Users/yco/dev/myreddit/dbt/", "profiles_dir": "/Users/yco/.dbt/"}
 )
+
+REDDIT_ELT_RESOURCES = {
+    "reddit": make_values_resource(
+        app_id=str,
+        secret=str,
+        username=str,
+        password=str,
+        posts_limit=int,
+        comments_limit=int,
+        comments_depth=int,
+    ),
+    "bigquery": bq.bigquery_resource,
+    "dbt": dbt_resource,
+    "output_notebook_io_manager": dm.local_output_notebook_io_manager,
+}
 
 MY_SUBREDDITS = [
     "dataengineering",
@@ -186,22 +205,16 @@ def reddit_el():
     return bq.load_data.alias("import_comments_to_bq")(comment_records)
 
 
-@job(
-    resource_defs={
-        "reddit": make_values_resource(
-            app_id=str,
-            secret=str,
-            username=str,
-            password=str,
-            posts_limit=int,
-            comments_limit=int,
-            comments_depth=int,
-        ),
-        "bigquery": bq.bigquery_resource,
-        "dbt": dbt_resource,
-        "output_notebook_io_manager": dm.local_output_notebook_io_manager,
-    }
-)
+@job(resource_defs=REDDIT_ELT_RESOURCES)
+def reddit_fetch_clean_predict():
+    el_done = reddit_el()
+    dbt_done = run_dbt_transformations(start_after=el_done)
+    prep_done = preprocess_texts(start_after=dbt_done)
+    train_data, valid_data, _ = get_dataset(start_after=prep_done)
+    batch_predict_graph(train_data, valid_data, start_after=prep_done)
+
+
+@job(resource_defs=REDDIT_ELT_RESOURCES)
 def reddit_full_pipeline():
     el_done = reddit_el()
     dbt_done = run_dbt_transformations(start_after=el_done)

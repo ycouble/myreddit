@@ -7,3 +7,4 @@ tmp*/
 .vscode/
 dbt-user-creds.json
 models/
+dags/jobs/configs/

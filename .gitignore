@@ -8,3 +8,4 @@ tmp*/
 dbt-user-creds.json
 models/
 dags/jobs/configs/
+**/reddit_data.csv

@@ -37,16 +37,21 @@ def get_table_as_records(
     },
 )
 def load_data(context, records: Records):
+    dataset, table = context.op_config["dataset"], context.op_config["table"]
+    table_ref = f"{dataset}.{table}"
     job_config = bigquery.LoadJobConfig()
-    job_config.autodetect = True
+    if context.op_config["drop_if_exist"]:
+        context.resources.bigquery.delete_table(table_ref)
+    if table_exists(context.resources.bigquery, dataset, table):
+        job_config.autodetect = False
+        job_config.schema = context.resources.bigquery.get_table(table_ref).schema
+    else:
+        job_config.autodetect = True
     job_config.schema_update_options = [
         "ALLOW_FIELD_ADDITION",
         "ALLOW_FIELD_RELAXATION",
     ]
     job_config.write_disposition = "WRITE_APPEND"
-    table = f"{context.op_config['dataset']}.{context.op_config['table']}"
-    if context.op_config["drop_if_exist"]:
-        context.resources.bigquery.delete_table(table)
     context.resources.bigquery.load_table_from_json(
-        records, table, job_config=job_config
+        records, table_ref, job_config=job_config
     ).result()

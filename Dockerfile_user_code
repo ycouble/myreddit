@@ -1,0 +1,41 @@
+
+FROM python:3.8-slim
+ARG GCP_DBT_KEY_PATH
+
+# Checkout and install dagster libraries needed to run the gRPC server
+# exposing your repository to dagit and dagster-daemon, and to load the DagsterInstance
+
+RUN apt-get update
+RUN apt-get install -y build-essential python-dev git
+
+RUN pip install \
+    dagster \
+    dagster-postgres \
+    dagster-docker
+
+# Copy and install actions requirements
+COPY ./dags/requirements.txt ./
+RUN pip install -r requirements.txt --no-cache-dir
+
+# Download spacy language data
+RUN python -m spacy download en_core_web_md
+
+# Create folder for models
+RUN mkdir -p /opt/dagster/models
+RUN mkdir -p /opt/dagster/spacy_configs
+RUN mkdir -p /opt/dagster/app
+
+# Copy service account key
+COPY $GCP_DBT_KEY_PATH /opt/dagster/gcp_key.json
+
+WORKDIR /opt/dagster/app
+
+# Add repository code
+# COPY ./dags/ /opt/dagster/app
+
+# Run dagster gRPC server on port 4000
+EXPOSE 4000
+
+# CMD allows this to be overridden from run launchers or executors that want
+# to run other commands against your repository
+CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "repo.py"]

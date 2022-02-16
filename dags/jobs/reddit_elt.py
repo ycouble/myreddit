@@ -26,7 +26,7 @@ from jobs.subreddit_prediction import (
 
 # Resources
 dbt_resource = dbt_cli_resource.configured(
-    {"project_dir": "/Users/yco/dev/myreddit/dbt/", "profiles_dir": "/Users/yco/.dbt/"}
+    {"project_dir": "/opt/dagster/dbt/", "profiles_dir": "/opt/dagster/dbt/profiles"}
 )
 
 REDDIT_ELT_RESOURCES = {
@@ -91,7 +91,7 @@ def extract_posts(context) -> Records:
     date = datetime.date.today()
     raw_data = []
     for subreddit in MY_SUBREDDITS:
-        print(subreddit)
+        context.log.info(subreddit)
         resp = requests.get(
             f"https://oauth.reddit.com/r/{subreddit}/hot"
             f"?limit={context.resources.reddit['posts_limit']}",

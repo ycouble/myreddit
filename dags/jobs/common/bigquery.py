@@ -1,10 +1,21 @@
 from typing import Any, Dict, List, Optional
 
-from dagster import Field, op
-from dagster_gcp import bigquery_resource  # noqa
+from dagster import Field, op, resource
 from google.cloud import bigquery
+from google.oauth2 import service_account
 
 from jobs.common.types import Records
+
+
+@resource(description="Dagster resource for connecting to BigQuery")
+def bigquery_resource(context):
+    key_path = "/opt/dagster/gcp_key.json"
+    credentials = service_account.Credentials.from_service_account_file(key_path)
+
+    return bigquery.Client(
+        credentials=credentials,
+        project=credentials.project_id,
+    )
 
 
 def table_exists(bq_client: bigquery.Client, dataset: str, table: str):
@@ -45,6 +56,11 @@ def load_data(context, records: Records):
     if table_exists(context.resources.bigquery, dataset, table):
         job_config.autodetect = False
         job_config.schema = context.resources.bigquery.get_table(table_ref).schema
+        schema_fields = [f.name for f in job_config.schema]
+        for record in records:
+            for field in list(record.keys()):
+                if field not in schema_fields:
+                    record.pop(field)
     else:
         job_config.autodetect = True
     job_config.schema_update_options = [

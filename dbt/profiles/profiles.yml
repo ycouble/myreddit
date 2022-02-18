@@ -3,7 +3,7 @@ myreddit:
     dev:
       dataset: reddit
       fixed_retries: 1
-      keyfile: "{{ env_var('GCP_DBT_KEY_PATH') }}"
+      keyfile: /opt/dagster/gcp_key.json
       method: service-account
       location: europe-west1
       priority: interactive

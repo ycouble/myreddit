@@ -3,12 +3,16 @@ from dagster import ScheduleDefinition, repository
 import jobs.reddit_elt as elt
 import jobs.subreddit_prediction as spred
 
+schedule_kwargs = {
+    "execution_timezone": "Europe/Paris",
+}
+
 reddit_full_pipeline_schedule = ScheduleDefinition(
-    job=elt.reddit_full_pipeline, cron_schedule="0 12 * * 0"
+    job=elt.reddit_full_pipeline, cron_schedule="0 10 * * 0", **schedule_kwargs
 )
 
 reddit_fcp_schedule = ScheduleDefinition(
-    job=elt.reddit_fetch_clean_predict, cron_schedule="0 12 * * 1-6"
+    job=elt.reddit_fetch_clean_predict, cron_schedule="0 10 * * 1-6", **schedule_kwargs
 )
 
 # @sensor(job=job2)
@@ -26,6 +30,7 @@ def my_repository():
         spred.train_subreddit,
         spred.predict_subreddit,
         spred.run_model_perfs_nb,
+        spred.populate_rubrix,
         elt.run_dbt_statistics,
         elt.run_text_prep,
         elt.run_text_prep_from_scratch,

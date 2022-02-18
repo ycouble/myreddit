@@ -17,3 +17,5 @@ python-dotenv
 sklearn
 panel
 holoviews
+rubrix
+shap

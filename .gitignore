@@ -10,3 +10,4 @@ cube-user.json
 models/
 dags/jobs/configs/
 **/reddit_data.csv
+es_data/

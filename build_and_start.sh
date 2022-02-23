@@ -1,6 +1,7 @@
 # Build Front end
-cd cube/dashboard-app/
+pushd cube/dashboard-app/
 npm run build
+popd
 
 # Build Docker Images
 docker-compose build

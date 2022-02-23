@@ -3,6 +3,7 @@ version: "3.4"
 services:
 
   nginx:
+    container_name: nginx_front
     image: nginx
     ports:
         - 80:80
@@ -10,6 +11,7 @@ services:
         - ./cube/dashboard-app/build/:/usr/share/nginx/html
 
   cube:
+    container_name: cube
     image: cubejs/cube:latest
     ports:
       - 4000:4000

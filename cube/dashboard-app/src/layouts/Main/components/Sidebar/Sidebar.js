@@ -8,6 +8,7 @@ import PageviewIcon from '@material-ui/icons/Pageview';
 import SyncIcon from '@material-ui/icons/Sync';
 import InsertChartIcon from '@material-ui/icons/InsertChart';
 import DescriptionIcon from '@material-ui/icons/Description';
+import BuildIcon from '@material-ui/icons/Build';
 
 import { Profile, SidebarNav } from './components';
 
@@ -46,16 +47,6 @@ const Sidebar = (props) => {
       icon: <DashboardIcon />,
     },
     {
-      title: 'Data Pipelines',
-      href: '/dagit',
-      icon: <SyncIcon />,
-    },
-    {
-      title: 'MLOps',
-      href: '/rubrix',
-      icon: <PageviewIcon />,
-    },
-    {
       title: 'Apps',
       href: '/apps',
       icon: <InsertChartIcon />,
@@ -64,6 +55,21 @@ const Sidebar = (props) => {
       title: 'Spacy Demo',
       href: '/app_spacy',
       icon: <DescriptionIcon />,
+    },
+    {
+      title: 'Dashboard Builder',
+      href: '/cubejs',
+      icon: <BuildIcon />,
+    },
+    {
+      title: 'Data Pipelines',
+      href: '/dagit',
+      icon: <SyncIcon />,
+    },
+    {
+      title: 'MLOps',
+      href: '/rubrix',
+      icon: <PageviewIcon />,
     },
   ];
 

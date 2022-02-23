@@ -1,4 +1,4 @@
-cube(`Subreddits`, {
+cube(`SubredditStats`, {
   sql: `SELECT * FROM reddit_statistics.subreddits`,
 
   preAggregations: {

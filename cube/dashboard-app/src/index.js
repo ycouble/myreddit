@@ -19,6 +19,7 @@ ReactDOM.render(
           <Route key="table" path="/rubrix" render={(props) => <IFramePage url="http://localhost:6900" />} />
           <Route key="table" path="/apps" render={(props) => <IFramePage url="http://localhost:8501" />} />
           <Route key="table" path="/app_spacy" render={(props) => <IFramePage url="http://localhost:8502" />} />
+          <Route key="table" path="/cubejs" render={(props) => <IFramePage url="http://localhost:4000" />} />
           <Route key="table" path="/user/:id" component={UsersPage} />
           <Redirect to="/dashboard" />
         </Switch>

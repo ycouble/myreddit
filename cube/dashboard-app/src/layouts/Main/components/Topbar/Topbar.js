@@ -57,7 +57,7 @@ const Topbar = (props) => {
           <img alt="GitHub" src="/images/github.svg" />
           <span className={classes.git}>Github</span>
         </a>
-        <a className={classes.link} rel="noopener noreferrer" target="_blank" href="https://slack.cube.dev/">
+        <a className={classes.link} rel="noopener noreferrer" target="_blank" href="https://palo-it.com/">
           <span className={classes.git}>PALO IT</span>
         </a>
       </Toolbar>

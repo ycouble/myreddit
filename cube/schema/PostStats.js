@@ -1,4 +1,4 @@
-cube(`Posts`, {
+cube(`PostStats`, {
   sql: `SELECT * FROM reddit_statistics.posts`,
 
   preAggregations: {
@@ -12,9 +12,22 @@ cube(`Posts`, {
 
   measures: {
     count: {
-      type: `count`,
-      drillMembers: [id, creationDate, fetchDate]
-    }
+      sql: `id`,
+      type: `countDistinct`,
+      drillMembers: [id, subreddit, tag]
+    },
+    ups_per_post: {
+      sql: `ups`,
+      type: `avg`,
+    },
+    downs_per_post: {
+      sql: `downs`,
+      type: `avg`,
+    },
+    nb_comments_per_post: {
+      sql: `num_comments`,
+      type: `avg`,
+    },
   },
 
   dimensions: {
@@ -34,28 +47,8 @@ cube(`Posts`, {
       type: `string`
     },
 
-    numReports: {
-      sql: `num_reports`,
-      type: `string`
-    },
-
-    viewCount: {
-      sql: `view_count`,
-      type: `string`
-    },
-
-    visited: {
-      sql: `visited`,
-      type: `string`
-    },
-
-    creationDate: {
-      sql: `creation_date`,
-      type: `string`
-    },
-
     fetchDate: {
-      sql: `fetch_date`,
+      sql: `timestamp(fetch_date)`,
       type: `time`
     }
   },

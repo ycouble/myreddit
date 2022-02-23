@@ -2,21 +2,21 @@ version: "3.4"
 
 services:
 
-  #traefik:
-    #image: 'traefik:latest'
-    #certificat ssl
+  nginx:
+    image: nginx
+    ports:
+        - 80:80
+    volumes:
+        - ./cube/dashboard-app/build/:/usr/share/nginx/html
 
-  # cubejs:
-  #   build:
-  #     context: ./cubejs
-  #   depends_on:
-  #     - dagster
-  #     - ...
-  #   ports:
-  #     - 80:4000
-  #   volumes:
-  #    - name
-  #      container:volume
+  cube:
+    image: cubejs/cube:latest
+    ports:
+      - 4000:4000
+    environment:
+      - CUBEJS_DEV_MODE=true
+    volumes:
+      - ./cube:/cube/conf
 
   # This service runs the postgres DB used by dagster for run storage, schedule storage,
   # and event log storage.
@@ -78,7 +78,7 @@ services:
     expose:
       - "3000"
     ports:
-      - "3000:3000"
+      - "3500:3000"
     environment:
       DAGSTER_POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
       DAGSTER_POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
@@ -113,6 +113,30 @@ services:
     depends_on:
       - dagster_postgresql
       - dagster_user_code
+
+  streamlit_all:
+    container_name: streamlit_all
+    build:
+      context: .
+      dockerfile: ./Dockerfile_streamlit
+      args:
+        - GCP_DBT_KEY_PATH=${GCP_DBT_KEY_PATH}
+    image: streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./streamlit_apps:/app/
+      - ./models:/opt/streamlit/models
+
+  streamlit_spacy:
+    container_name: streamlit_spacy
+    image: streamlit
+    ports:
+      - "8502:8501"
+    command: ["spacy_demo.py"]
+    volumes:
+      - ./streamlit_apps:/app/
+      - ./models:/opt/streamlit/models
 
   rubrix:
     image: recognai/rubrix:v0.10.0

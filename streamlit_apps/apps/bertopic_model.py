@@ -1,11 +1,10 @@
 import random
 
+# import spacy_streamlit
+import streamlit as st
 from bertopic import BERTopic
 from google.cloud import bigquery
 from google.oauth2 import service_account
-
-# import spacy_streamlit
-import streamlit as st
 
 key_path = "/Users/yco/.config/dbt-user-creds.json"
 credentials = service_account.Credentials.from_service_account_file(

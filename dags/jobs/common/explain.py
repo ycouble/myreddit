@@ -39,7 +39,7 @@ def get_shap_explainer_for_spacy_textcat(model: spacy.language.Language):
         masker=shap.maskers.Text(tok_adapter),
         algorithm="permutation",
         output_names=class_names,
-        max_evals=1500,
+        max_evals=500,
     )
 
     return explainer, class_names

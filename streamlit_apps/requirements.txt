@@ -1,0 +1,6 @@
+spacy>3.0.0
+spacy-streamlit
+seaborn
+pandas
+fire
+google-cloud-bigquery

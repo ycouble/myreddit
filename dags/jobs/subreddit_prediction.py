@@ -286,7 +286,7 @@ def populate_rubrix():
         config_folder_path = ROOT_DIR / "spacy_configs" / model_type
 
         texts, labels, ids = _get_dataset(context.resources.bigquery)
-        data = zip(texts, zip(ids, labels))
+        data = list(zip(texts, zip(ids, labels)))
 
         records = []
         for config in config_folder_path.glob("*.cfg"):
@@ -298,7 +298,6 @@ def populate_rubrix():
                 nlp_textcat
             )
             for doc, (_id, label) in nlp_textcat.pipe(data, as_tuples=True):
-
                 try:
                     shap_values = explainer([doc.text])
                     predictions = {
@@ -309,7 +308,7 @@ def populate_rubrix():
                         rb.TokenAttributions(
                             token=token,
                             attributions={predicted_class: values[predicted_class]},
-                        )  # ignore first (CLS) and last (SEP) tokens
+                        )
                         for token, values in zip(
                             shap_values[0].data, shap_values[0].values
                         )

@@ -2,12 +2,11 @@ import random
 
 import spacy
 import spacy_streamlit
+import streamlit as st
 from google.cloud import bigquery
 from google.oauth2 import service_account
 
-import streamlit as st
-
-key_path = "/Users/yco/.config/dbt-user-creds.json"
+key_path = "/opt/streamlit/gcp_key.json"
 credentials = service_account.Credentials.from_service_account_file(
     key_path  # , scopes=["https://www.googleapis.com/auth/cloud-platform"],
 )
@@ -27,7 +26,9 @@ labels = nlp.get_pipe("ner").labels
 # Load the text categorization model from the trained model
 nlp.add_pipe(
     "textcat",
-    source=spacy.load("models/subreddit_classif/textcat_ens/2022/02/01/model-best"),
+    source=spacy.load(
+        "/opt/streamlit/models/subreddit_classif/textcat_ens/2022/02/01/model-best"
+    ),
 )
 
 text = st.selectbox("Text to analyze", options=[d["text"] for d in data])

@@ -7,7 +7,7 @@ tmp*/
 .vscode/
 dbt-user-creds.json
 cube-user.json
-models/
-dags/jobs/configs/
+/models/
+/dags/jobs/configs/
 **/reddit_data.csv
-es_data/
+/es_data/

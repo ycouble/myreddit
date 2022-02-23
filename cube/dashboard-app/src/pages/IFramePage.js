@@ -13,6 +13,7 @@ export default class FullheightIframe extends Component {
                 src={this.props.url}
                 scrolling="no"
                 frameBorder="0"
+                title="iframe_subapp"
             />
         );
     }

@@ -4,7 +4,6 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
-import DataTablePage from './pages/DataTablePage';
 import IFramePage from './pages/IFramePage';
 import UsersPage from './pages/UsersPage';
 

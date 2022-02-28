@@ -14,12 +14,11 @@ ReactDOM.render(
         <Switch>
           <Redirect exact from="/" to="/dashboard" />
           <Route key="index" exact path="/dashboard" component={DashboardPage} />
-          <Route key="table" path="/dagit" render={(props) => <IFramePage url="http://localhost:3500" />} />
-          <Route key="table" path="/rubrix" render={(props) => <IFramePage url="http://localhost:6900" />} />
-          <Route key="table" path="/apps" render={(props) => <IFramePage url="http://localhost:8501" />} />
-          <Route key="table" path="/app_spacy" render={(props) => <IFramePage url="http://localhost:8502" />} />
-          <Route key="table" path="/cubejs" render={(props) => <IFramePage url="http://localhost:4000" />} />
-          <Route key="table" path="/user/:id" component={UsersPage} />
+          <Route key="table" path="/pipelines" render={(props) => <IFramePage url={process.env('REACT_APP_DOMAIN') + "/zpipelines"} />} />
+          <Route key="table" path="/rubrix" render={(props) => <IFramePage url={process.env('REACT_APP_DOMAIN') + "/zrubrix/"} />} />
+          <Route key="table" path="/apps" render={(props) => <IFramePage url={process.env('REACT_APP_DOMAIN') + "/zapps"} />} />
+          <Route key="table" path="/app_spacy" render={(props) => <IFramePage url={process.env('REACT_APP_DOMAIN') + "/zapp_spacy"} />} />
+          <Route key="table" path="/cubejs" render={(props) => <IFramePage url={process.env('REACT_APP_DOMAIN') + "/zcubejs"} />} />
           <Redirect to="/dashboard" />
         </Switch>
       </App>

@@ -9,14 +9,6 @@ This project covers from data extraction to dashboarding to MLOps.
 
 ```mermaid
 flowchart TD
-    legendapi[[API]]
-    legendtr[\Transformation/]
-    legenddb{{Data}}
-    ledendweb[Web UI]
-```
-
-```mermaid
-flowchart TD
     %% EL[T]
     reddit[[Reddit API]] --- ELT[\Extract Load - python/dagster/]
     ELT --> posts{{posts + comments}}
@@ -40,7 +32,14 @@ flowchart TD
     srmodel --> apps[Applications - Streamlit]
     clean --> apps
 ```
-
+Legend:
+```mermaid
+flowchart TD
+    legendapi[[API]]
+    legendtr[\Transformation/]
+    legenddb{{Data}}
+    ledendweb[Web UI]
+```
 ## Architecture
 
 ![architecture](assets/architecture.png)

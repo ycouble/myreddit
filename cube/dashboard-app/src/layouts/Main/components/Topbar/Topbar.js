@@ -1,10 +1,10 @@
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { AppBar, Toolbar } from '@material-ui/core';
 import palette from '../../../../theme/palette';
+import MenuIcon from '@material-ui/icons/Menu';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,16 +49,14 @@ const Topbar = (props) => {
   return (
     <AppBar {...rest} className={clsx(classes.root, className)}>
       <Toolbar>
-        <RouterLink to="/">
-          <img alt="Logo" src="/images/logo/logo_small.png" />
-        </RouterLink>
+        <MenuIcon onClick={onSidebarOpen}/>
         <div className={classes.flexGrow} />
         <a className={classes.link} rel="noopener noreferrer" target="_blank" href="https://github.com/ycouble/myreddit">
           <img alt="GitHub" src="/images/github.svg" />
           <span className={classes.git}>Github</span>
         </a>
         <a className={classes.link} rel="noopener noreferrer" target="_blank" href="https://palo-it.com/">
-          <span className={classes.git}>PALO IT</span>
+          <img alt="Logo" src="/images/logo/logo_small.png" style="width:10px"/><span className={classes.git}>PALO IT</span>
         </a>
       </Toolbar>
     </AppBar>

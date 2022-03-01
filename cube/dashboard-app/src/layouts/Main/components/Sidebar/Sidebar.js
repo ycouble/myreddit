@@ -63,7 +63,7 @@ const Sidebar = (props) => {
     },
     {
       title: 'Data Pipelines',
-      href: '/zpipelines',
+      href: '/pipelines',
       icon: <SyncIcon />,
     },
     {

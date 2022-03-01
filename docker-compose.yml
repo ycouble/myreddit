@@ -10,6 +10,12 @@ services:
     volumes:
         - ./cube/dashboard-app/build/:/usr/share/nginx/html
         - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - dagster_dagit
+      - rubrix
+      - cube
+      - streamlit_all
+      - streamlit_spacy
 
 
   cube:

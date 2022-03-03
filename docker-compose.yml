@@ -8,18 +8,20 @@ services:
     ports:
         - 80:80
     volumes:
-        - ./frontend/build/:/usr/share/nginx/html
+        - ./frontend/dist/:/usr/share/nginx/html
         - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - dagster_dagit
       - rubrix
-      - cube
+      - metabase
       - streamlit_all
       - streamlit_spacy
 
   metabase:
     container_name: metabase
     image: metabase/metabase
+    environment:
+      - MB_EMBEDDING_APP_ORIGIN=localhost
     ports:
       - 3000:3000
 

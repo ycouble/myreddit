@@ -9,28 +9,40 @@ const props = defineProps({
   dashboard: Number
 })
 
-const dashboardUrl = computed( () => {
-  if (!props.service.items) return ''
-  return ('/' + props.service.items[props.dashboard].id)
-})
 
-const serviceUrl = computed( () => 'http://' + props.service.id + '.' + import.meta.env.VITE_DOMAIN + dashboardUrl.value)
+const serviceUrl = computed( () => 'http://' + props.service.id + '.' + import.meta.env.VITE_DOMAIN )
+const dashboardUrl = computed( () => 'http://' + import.meta.env.VITE_DOMAIN + '/metabase/public/dashboard/' + props.service.items[props.dashboard].id)
 
 </script>
 
 <template>
   <iframe
+    v-if="!service.items"
     :id="service.id"
     :title="service.label"
-    width="100%"
-    height="100%"
+    allow="fullscreen"
     frameborder="0"
     :src="serviceUrl"
+    class="iframe"
+  >
+  Your browser does not support iframes<a href="{{ serviceUrl }}"> click here to view the page directly.</a>
+  </iframe>
+  <iframe
+    v-else
+    :id="service.id"
+    :title="service.label"
+    allow="fullscreen"
+    frameborder="0"
+    :src="dashboardUrl"
+    class="iframe"
   >
   Your browser does not support iframes<a href="{{ serviceUrl }}"> click here to view the page directly.</a>
   </iframe>
 </template>
 
-<style lang="scss" scoped>
-
+<style scoped>
+.iframe {
+  width: 100%;
+  min-height: calc(100vh - 6rem)
+}
 </style>

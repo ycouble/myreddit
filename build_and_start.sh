@@ -1,5 +1,6 @@
 # Build Front end
 pushd frontend/
+npm install
 npm run build
 popd
 

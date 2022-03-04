@@ -9,7 +9,10 @@ const items = ref([
     icon: 'pi pi-chart-pie',
     id: 'metabase',
     items: [
-      { label: 'Dashboard one', id: '9a5351a9-c0c8-4f26-8d96-7b007949f7cc', command: () => { activeIndex.value = 0; activeChildIndex.value = 0 } }
+      { label: 'Posts', id: '46070920-be02-4948-814b-bca59cddc17a', command: () => { activeIndex.value = 0; activeChildIndex.value = 0 } },
+      { label: 'Comments', id: '5143530b-5313-4f40-91e4-eb7868a44782', command: () => { activeIndex.value = 0; activeChildIndex.value = 1 } },
+      { label: 'Model Performances', id: '408b49c6-0622-4c4a-af6b-0ce372061de4', command: () => { activeIndex.value = 0; activeChildIndex.value = 2 } },
+      { label: 'Subreddit Classif.', id: 'b8cc283b-d364-4d7f-a173-9ddf0fa5fdb0', command: () => { activeIndex.value = 0; activeChildIndex.value = 3 } }
     ],
   },
   { label: 'Apps', icon: 'pi pi-box', id: 'apps', command: () => { activeIndex.value = 1 } },
@@ -31,7 +34,7 @@ const activeChildIndex = ref(0)
     <template #end>
       <a href="/metabase" target="_blank"><i class="pi pi-cog" style="font-size: 1.25rem"></i></a>
     </template>
-  </Menubar>  
-  
+  </Menubar>
+
   <IFrame v-model:service="items[activeIndex]" v-model:dashboard="activeChildIndex" ></IFrame>
 </template>

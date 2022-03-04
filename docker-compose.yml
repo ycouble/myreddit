@@ -24,6 +24,8 @@ services:
       - MB_EMBEDDING_APP_ORIGIN=localhost
     ports:
       - 3000:3000
+    volumes:
+      - ./metabase.db:/metabase.db
 
   # This service runs the postgres DB used by dagster for run storage, schedule storage,
   # and event log storage.

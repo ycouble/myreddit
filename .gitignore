@@ -11,6 +11,7 @@ cube-user.json
 /dags/jobs/configs/
 **/reddit_data.csv
 /es_data/
+**/.cubestore
 
 # misc
 .DS_Store

@@ -1,5 +1,6 @@
 # Build Front end
-pushd cube/dashboard-app/
+pushd frontend/
+npm install
 npm run build
 popd
 

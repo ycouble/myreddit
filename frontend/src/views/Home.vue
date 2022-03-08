@@ -12,14 +12,10 @@ const items = ref([
     icon: 'pi pi-chart-pie',
     id: 'metabase',
     items: [
-<<<<<<< HEAD
-      { label: 'Posts', id: '46070920-be02-4948-814b-bca59cddc17a', command: () => { activeIndex.value = 0; activeChildIndex.value = 0 } },
-      { label: 'Comments', id: '5143530b-5313-4f40-91e4-eb7868a44782', command: () => { activeIndex.value = 0; activeChildIndex.value = 1 } },
-      { label: 'Model Performances', id: '408b49c6-0622-4c4a-af6b-0ce372061de4', command: () => { activeIndex.value = 0; activeChildIndex.value = 2 } },
-      { label: 'Subreddit Classif.', id: 'b8cc283b-d364-4d7f-a173-9ddf0fa5fdb0', command: () => { activeIndex.value = 0; activeChildIndex.value = 3 } }
-=======
-      { label: 'Dashboard one', id: '9a5351a9-c0c8-4f26-8d96-7b007949f7cc', command: () => { activeIndex.value = 1; activeChildIndex.value = 0 } }
->>>>>>> e75bb74 (Change Home to reflect the dictatorship of the author)
+      { label: 'Posts', id: '46070920-be02-4948-814b-bca59cddc17a', command: () => { activeIndex.value = 1; activeChildIndex.value = 0 } },
+      { label: 'Comments', id: '5143530b-5313-4f40-91e4-eb7868a44782', command: () => { activeIndex.value = 1; activeChildIndex.value = 1 } },
+      { label: 'Model Performances', id: '408b49c6-0622-4c4a-af6b-0ce372061de4', command: () => { activeIndex.value = 1; activeChildIndex.value = 2 } },
+      { label: 'Subreddit Classif.', id: 'b8cc283b-d364-4d7f-a173-9ddf0fa5fdb0', command: () => { activeIndex.value = 1; activeChildIndex.value = 3 } }
     ],
   },
   { label: 'Apps', icon: 'pi pi-box', id: 'apps', command: () => { activeIndex.value = 2 } },
@@ -47,32 +43,54 @@ const activeChildIndex = ref(0)
     </template>
   </Menubar>
 
-<<<<<<< HEAD
-  <IFrame v-model:service="items[activeIndex]" v-model:dashboard="activeChildIndex" ></IFrame>
-=======
   <!-- HOME -->
   <div v-if="activeIndex === 0">
-    <h1>WELCOME HOME</h1>
+    <!-- <h1>WELCOME HOME</h1>
 
-    <a href="https://www.primefaces.org/primevue/#/card">Components</a>
+    <a href="https://www.primefaces.org/primevue/#/card">Components</a> -->
 
-    <div class="container m-auto">
-      <Card class="md:w-1/4 bg-gray-100">
+    <div class="container mx-auto m-8 flex">
+      <Card class="bg-gray-100 m-8 p-4 sm:w-full lg:w-1/3">
         <template #header>
-          <img alt="user header" src="@/assets/palo_infinity.png">
+          <!-- <img alt="user header" src="@/assets/palo_infinity.png" style="width:30px"> -->
         </template>
         <template #title>
-          Advanced Card
+          PALO IT NLP Demonstrator
         </template>
         <template #content>
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae numquam deserunt
-          quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis esse, cupiditate neque quas!
+          <p class="prose text-left">
+          This website is a fully featured demonstrator of a Natural Language Processing (NLP) application:
+          from data extraction to end user application, we've covered the whole lifecycle of a NLP application with a modern and open-source NLP data stack. <br>
+          <ul>
+          <li>The data is extracted from Reddit API, loaded into a <a href="https://cloud.google.com/bigquery">BigQuery</a> DB.</li>
+          <li>It is then locally transformed using <a href="https://www.getdbt.com/">DBT</a></li>
+          <li>The texts are cleaned and preprocessed using <a href="https://github.com/chartbeat-labs/textacy">textacy</a></li>
+          <li>Models are trained using <a href="https://spacy.io">spaCy</a></li>
+          <li>Models are served using <a href="https://fastapi.tiangolo.com/">FastAPI</a></li>
+          <li>Models are monitored and new unknown data is annotated through <a href="https://www.rubrix.ml/">Rubrix</a></li>
+          <li>Model performance and data are monitored through dashboard made with <a href="https://www.metabase.com/">Metabase</a></li>
+          <li>End user applications are demonstrated using <a href="https://streamlit.io">Streamlit</a></li>
+          </ul>
+          </p>
         </template>
         <template #footer>
-          <Button icon="pi pi-check" label="Save" />
-          <Button icon="pi pi-times" label="Cancel" class="p-button-secondary" style="margin-left: .5em" />
         </template>
       </Card>
+
+      <Card class="bg-gray-100 m-8 p-4 md:w-full w-2/3">
+        <template #header>
+          <!-- <img alt="user header" src="@/assets/palo_infinity.png" style="width:30px"> -->
+        </template>
+        <template #title>
+          System Architecture
+        </template>
+        <template #content>
+          <img alt="architecture" src="@/assets/architecture.png">
+        </template>
+        <template #footer>
+        </template>
+      </Card>
+
     </div>
 
   </div>
@@ -80,5 +98,4 @@ const activeChildIndex = ref(0)
   <!-- IFRAME -->
   <IFrame v-else v-model:service="items[activeIndex]" v-model:dashboard="activeChildIndex" ></IFrame>
 
->>>>>>> e75bb74 (Change Home to reflect the dictatorship of the author)
 </template>

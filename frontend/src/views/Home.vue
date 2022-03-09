@@ -1,14 +1,16 @@
 <script setup>
-import { ref, reactive } from 'vue'
-/* import IFrame from '@/components/IFrame.vue' */
+import { ref } from 'vue'
+import IFrame from '@/components/IFrame.vue'
 
 import Markdown from 'vue3-markdown-it'
 
+// Markdown File
 import home from './home.md?raw'
+import home2 from './home2.md?raw'
+import home3 from '../../README.md?raw'
 
 //PRIMEVUE COMPONENTS
 import Menubar from 'primevue/menubar'
-import Card from 'primevue/card'
 
 const items = ref([
   {
@@ -90,6 +92,29 @@ const items = ref([
       activeIndex.value = 5
     },
   },
+  {
+    icon: 'pi pi-cog',
+    id: 'settings',
+    items: [
+      {
+        label: 'Data Pipeline',
+        icon: 'pi pi-sync',
+        id: 'dagit',
+        command: () => {
+          activeIndex.value = 4
+        },
+      },
+      {
+        separator: true,
+      },
+      {
+        label: 'Metabase',
+        icon: 'pi pi-chart-pie',
+        id: 'metabase',
+        to: '/metabase',
+      },
+    ],
+  },
 ])
 
 const activeIndex = ref(0)
@@ -97,6 +122,8 @@ const activeChildIndex = ref(0)
 
 // Markdown file to parse
 const source = home
+const source2 = home2
+const source3 = home3
 </script>
 
 <template>
@@ -120,21 +147,27 @@ const source = home
           style="font-size: 1.25rem"
         ></i>
       </a>
-      <a href="/metabase" target="_blank">
-        <i class="pi pi-cog" style="font-size: 1.25rem"></i>
-      </a>
     </template>
   </Menubar>
 
   <!-- HOME -->
   <div v-if="activeIndex === 0">
-    <div class="container mx-auto mt-10">
-      <div class="prose">
-        <Markdown :source="source"></Markdown>
+    <div class="container mx-auto mt-10 text-left">
+      <div
+        class="flex mx-10 justify-around flex-wrap 2xl:space-x-20 space-y-20 sm:space-y-0"
+      >
+        <div class="prose lg:w-1/3">
+          <Markdown :source="source"></Markdown>
+        </div>
+        <div class="prose lg:w-2/3">
+          <Markdown :source="source2"></Markdown>
+        </div>
+        <div class="prose">
+          <Markdown :source="source3"></Markdown>
+        </div>
       </div>
     </div>
   </div>
-
   <!-- IFRAME -->
   <IFrame
     v-else

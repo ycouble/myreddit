@@ -1,10 +1,14 @@
-# Hello World !
 
-## Yeah subtitle
+# My Reddit: an exploratory NLP project on reddit data
 
-Lorem ipsum dolor sit amet consectetur adipisicing elit. Est officia, repellat odit adipisci sapiente, beatae doloribus amet quae, sit placeat nesciunt accusamus! Explicabo necessitatibus voluptatum excepturi numquam distinctio saepe nam nulla facere quisquam dolore corporis perspiciatis quam, dolor aperiam esse deleniti quae velit culpa similique repudiandae! Doloremque vel iusto pariatur id repellendus distinctio nihil, esse impedit eveniet nostrum, corrupti in minus officiis. Eaque enim at mollitia, deserunt dignissimos quidem, aspernatur nesciunt assumenda velit veniam molestiae. Iusto eius consectetur dolore dicta, deserunt aut quasi provident possimus nostrum impedit recusandae odit unde. Fuga ad maiores nam laborum iusto cum. Odio aperiam, corrupti eos possimus dolor dolorem repellendus inventore, cupiditate obcaecati sint facere ut odit neque libero maxime! Rerum distinctio ullam vero deleniti placeat non, quisquam quam! Laudantium deleniti error adipisci eveniet consequatur labore est soluta temporibus, assumenda, repellat autem quod, alias tempore dolor! Ducimus tempora, eius quae nesciunt omnis tempore repellendus sint.
+This website is a fully featured demonstrator of a Natural Language Processing (NLP) application:
+from data extraction to end user application, we've covered the whole lifecycle of a NLP application with a modern and open-source NLP data stack.
 
-**bold**
-
-- list
-  - list 2
+- The data is extracted from Reddit API, loaded into a [BigQuery](https://cloud.google.com/bigquery) DB.
+- It is then locally transformed using [DBT](https://www.getdbt.com/)
+- The texts are cleaned and preprocessed using [textacy](https://github.com/chartbeat-labs/textacy)
+- Models are trained using [spaCy](https://spacy.io)
+- Models are served using [FastAPI](https://fastapi.tiangolo.com/)
+- Models are monitored and new unknown data is annotated through [Rubrix](https://www.rubrix.ml/)
+- Model performance and data are monitored through dashboard made with [Metabase](https://www.metabase.com/)
+- End user applications are demonstrated using [Streamlit](https://streamlit.io)

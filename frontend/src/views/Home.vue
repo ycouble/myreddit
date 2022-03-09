@@ -6,7 +6,6 @@ import Markdown from 'vue3-markdown-it'
 
 // Markdown File
 import home from './home.md?raw'
-import home2 from './home2.md?raw'
 import home3 from '../../README.md?raw'
 
 //PRIMEVUE COMPONENTS
@@ -77,14 +76,6 @@ const items = ref([
     },
   },
   {
-    label: 'Data Pipeline',
-    icon: 'pi pi-sync',
-    id: 'dagit',
-    command: () => {
-      activeIndex.value = 4
-    },
-  },
-  {
     label: 'MLOps',
     icon: 'pi pi-tags',
     id: 'rubrix',
@@ -93,11 +84,12 @@ const items = ref([
     },
   },
   {
+    label: 'Admin',
     icon: 'pi pi-cog',
     id: 'settings',
     items: [
       {
-        label: 'Data Pipeline',
+        label: 'Data Pipelines',
         icon: 'pi pi-sync',
         id: 'dagit',
         command: () => {
@@ -105,10 +97,7 @@ const items = ref([
         },
       },
       {
-        separator: true,
-      },
-      {
-        label: 'Metabase',
+        label: 'Dashboard Editor',
         icon: 'pi pi-chart-pie',
         id: 'metabase',
         to: '/metabase',
@@ -122,7 +111,6 @@ const activeChildIndex = ref(0)
 
 // Markdown file to parse
 const source = home
-const source2 = home2
 const source3 = home3
 </script>
 
@@ -154,17 +142,17 @@ const source3 = home3
   <div v-if="activeIndex === 0">
     <div class="container mx-auto mt-10 text-left">
       <div
-        class="flex mx-10 justify-around flex-wrap 2xl:space-x-20 space-y-20 sm:space-y-0"
+        class="flex mx-10 justify-around flex-wrap space-y-20 sm:space-y-0"
       >
         <div class="prose lg:w-1/3">
           <Markdown :source="source"></Markdown>
         </div>
-        <div class="prose lg:w-2/3">
-          <Markdown :source="source2"></Markdown>
-        </div>
-        <div class="prose">
+        <!-- <div class="lg:w-2/3"> -->
+          <img class="lg:w-2/3 object-contain" src="@/assets/tech-view.png" alt="Technology overview" />
+        <!-- </div> -->
+        <!-- <div class="prose">
           <Markdown :source="source3"></Markdown>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

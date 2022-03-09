@@ -3,9 +3,19 @@
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/pre-commit/pre-commit/master.svg)](https://results.pre-commit.ci/latest/github/pre-commit/pre-commit/master)
 
 # My Reddit: an exploratory NLP project on reddit data
-This is a demonstrator project of a fully featured NLP/ML system.
 
-This project covers from data extraction to dashboarding to MLOps.
+This website is a fully featured demonstrator of a Natural Language Processing (NLP) application:
+from data extraction to end user application, we've covered the whole lifecycle of a NLP application with a modern and open-source NLP data stack. <br>
+
+- The data is extracted from Reddit API, loaded into a [https://cloud.google.com/bigquery](BigQuery) DB.
+- It is then locally transformed using [https://www.getdbt.com/](DBT)
+- The texts are cleaned and preprocessed using [https://github.com/chartbeat-labs/textacy](textacy)
+- Models are trained using [https://spacy.io](spaCy)
+- Models are served using [https://fastapi.tiangolo.com/](FastAPI)
+- Models are monitored and new unknown data is annotated through [https://www.rubrix.ml/](Rubrix)
+- Model performance and data are monitored through dashboard made with [https://www.metabase.com/](Metabase)
+- End user applications are demonstrated using [https://streamlit.io](Streamlit)
+
 
 ```mermaid
 flowchart TD

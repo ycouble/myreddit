@@ -80,7 +80,7 @@ const items = ref([
     icon: 'pi pi-tags',
     id: 'rubrix',
     command: () => {
-      activeIndex.value = 5
+      activeIndex.value = 4
     },
   },
   {
@@ -93,7 +93,8 @@ const items = ref([
         icon: 'pi pi-sync',
         id: 'dagit',
         command: () => {
-          activeIndex.value = 4
+          activeIndex.value = 5
+          activeChildIndex.value = 0
         },
       },
       {
@@ -160,6 +161,6 @@ const source3 = home3
   <IFrame
     v-else
     v-model:service="items[activeIndex]"
-    v-model:dashboard="activeChildIndex"
+    v-model:subpage="activeChildIndex"
   ></IFrame>
 </template>

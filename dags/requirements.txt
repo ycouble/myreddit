@@ -19,3 +19,4 @@ panel
 holoviews
 rubrix
 shap
+pyyaml

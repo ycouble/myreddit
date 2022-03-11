@@ -23,12 +23,12 @@ RUN python -m spacy download en_core_web_md
 # Create folder for models
 RUN mkdir -p /opt/dagster/models
 RUN mkdir -p /opt/dagster/spacy_configs
-RUN mkdir -p /opt/dagster/app
+RUN mkdir -p /opt/dagster/dags
 
 # Copy service account key
 COPY $GCP_DBT_KEY_PATH /opt/dagster/gcp_key.json
 
-WORKDIR /opt/dagster/app
+WORKDIR /opt/dagster/dags
 
 # Add repository code
 # COPY ./dags/ /opt/dagster/app

@@ -4,3 +4,6 @@ seaborn
 pandas
 fire
 google-cloud-bigquery
+nltk
+gensim
+pyldavis

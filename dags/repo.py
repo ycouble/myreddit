@@ -1,19 +1,47 @@
-from dagster import ScheduleDefinition, repository
+import yaml
+from dagster import ScheduleDefinition, repository, schedule
 
 import jobs.reddit_elt as elt
 import jobs.subreddit_prediction as spred
+from jobs.definitions import ROOT_DIR
 
+config_folder = ROOT_DIR / "dags" / "jobs" / "configs"
 schedule_kwargs = {
     "execution_timezone": "Europe/Paris",
 }
 
-reddit_full_pipeline_schedule = ScheduleDefinition(
-    job=elt.reddit_full_pipeline, cron_schedule="0 10 * * 0", **schedule_kwargs
+
+def read_config(name: str) -> dict:
+    with open(config_folder / name, "r") as stream:
+        return yaml.safe_load(stream)
+
+
+@schedule(
+    cron_schedule="0 10 * * 0",
+    job=elt.reddit_full_pipeline,
+    **schedule_kwargs,
 )
+def reddit_full_pipeline_schedule(context):
+    return read_config("reddit_elt.yml")
+
 
 reddit_fcp_schedule = ScheduleDefinition(
     job=elt.reddit_fetch_clean_predict, cron_schedule="0 10 * * 1-6", **schedule_kwargs
 )
+
+
+def reddit_fcp_schedule(context):
+    return read_config("reddit_fcp.yml")
+
+
+@schedule(
+    cron_schedule="22 11 * * 1-6",
+    job=elt.reddit_fetch_clean_predict,
+    **schedule_kwargs,
+)
+def reddit_fcp_schedule(context):
+    return read_config("reddit_fcp.yml")
+
 
 # @sensor(job=job2)
 # def job2_sensor():
